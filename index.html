@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国学十二宫测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            padding: 30px 20px;
+            min-height: 400px;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #222;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .option:hover {
+            background: #e8e9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .option.selected:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .btn-prev {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-prev:hover {
+            background: #dee2e6;
+        }
+
+        .btn-prev:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #e67bf0 0%, #e94a5e 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        /* 结果页面样式 */
+        .result-container {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .overall-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .overall-score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .overall-score-text {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .summary-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .summary-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .strength-section, .focus-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .palace-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .palace-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .palace-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .palace-level {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .palace-level.weak {
+            background: #f5576c;
+        }
+
+        .palace-level.normal {
+            background: #ffb822;
+        }
+
+        .palace-level.strong {
+            background: #667eea;
+        }
+
+        .palace-level.very-strong {
+            background: #48c774;
+        }
+
+        .palace-level.super-strong {
+            background: #23d160;
+        }
+
+        .palace-interpretation {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .palace-advice {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #667eea;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .detailed-analysis {
+            margin-top: 30px;
+        }
+
+        .palace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .palace-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .palace-card-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .palace-card-score {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .wisdom-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .wisdom-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .wisdom-content {
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .share-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .btn-share, .btn-download {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-share:hover, .btn-download:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a3f92 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .palace-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔮 国学十二宫测试</h1>
+            <p>探索你的人生十二宫，了解自己的运势格局</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <!-- 题目将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <h2 class="result-title">🎉 测试完成！</h2>
+                <p class="result-subtitle">以下是您的国学十二宫测试结果</p>
+            </div>
+
+            <div class="overall-score">
+                <div>综合运势评分</div>
+                <div class="overall-score-value" id="overallScore">0</div>
+                <div class="overall-score-text" id="overallText">正在计算...</div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-title">📊 测试结果总结</div>
+                <div class="summary-content" id="summaryContent">
+                    正在生成...
+                </div>
+            </div>
+
+            <div class="strength-section">
+                <h3 class="section-title">🌟 核心优势宫位</h3>
+                <div id="strengthSection">
+                    <!-- 优势宫位将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <div class="focus-section">
+                <h3 class="section-title">💡 重点关注宫位</h3>
+                <div id="focusSection">
+                    <!-- 重点关注宫位将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <div class="detailed-analysis">
+                <h3 class="section-title">📊 十二宫位详细分析</h3>
+                <div class="palace-grid" id="palaceGrid">
+                    <!-- 详细分析将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <div class="wisdom-section">
+                <h4 class="wisdom-title">📖 传统文化智慧</h4>
+                <p class="wisdom-content" id="wisdomContent">
+                    正在生成...
+                </p>
+            </div>
+
+            <div class="share-section">
+                <button class="btn-share" onclick="shareResult()">📱 分享结果</button>
+                <button class="btn-download" onclick="downloadImage()">💾 保存图片</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在生成您的专属报告...</p>
+        </div>
+
+        <div class="footer">
+            <p>本测试基于传统面相学十二宫理论</p>
+            <p>结合现代心理学方法设计，仅供参考</p>
+        </div>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // 测试题目数据（日常化版本）
+        const questions = [
+            {
+                text: "遇到人生大事需要做决定，你通常会？",
+                options: [
+                    "反复思考，把利弊都想清楚再决定",
+                    "相信自己的直觉和第一感觉",
+                    "问问家人长辈的意见",
+                    "考虑长远发展，规划未来"
+                ]
+            },
+            {
+                text: "你觉得钱对你来说最重要的是？",
+                options: [
+                    "能让自己生活踏实，有安全感",
+                    "实现梦想和目标的工具",
+                    "和家人一起分享，留给下一代",
+                    "用来帮助别人，做有意义的事"
+                ]
+            },
+            {
+                text: "在家人中，你最看重哪种关系？",
+                options: [
+                    "和兄弟姐妹的感情，互相帮助",
+                    "和另一半的感情，彼此陪伴",
+                    "和孩子的感情，看着他成长",
+                    "和父母的感情，孝顺长辈"
+                ]
+            },
+            {
+                text: "遇到困难和挫折时，你习惯怎么处理？",
+                options: [
+                    "找朋友或同事帮忙，一起解决",
+                    "换个环境或换个思路试试",
+                    "调整心态，往好处想",
+                    "坚持自己的想法，不轻易改变"
+                ]
+            },
+            {
+                text: "你最想过什么样的生活？",
+                options: [
+                    "事业有成，得到认可和尊重",
+                    "家庭幸福，生活安稳",
+                    "内心充实，精神自由",
+                    "身体健康，开开心心"
+                ]
+            },
+            {
+                text: "交朋友时，你最看重对方哪一点？",
+                options: [
+                    "为人诚实，说话算数",
+                    "大方慷慨，愿意分享",
+                    "有共同话题，聊得来",
+                    "心地善良，有爱心"
+                ]
+            },
+            {
+                text: "对于传统文化和习俗，你的态度是？",
+                options: [
+                    "很尊重，会按照传统来做",
+                    "很好奇，喜欢研究了解",
+                    "会思考哪些值得保留",
+                    "会结合现代生活来创新"
+                ]
+            },
+            {
+                text: "你觉得保持健康最重要的是？",
+                options: [
+                    "多运动，保持身体活力",
+                    "心态好，不要总是焦虑",
+                    "生活规律，按时吃饭睡觉",
+                    "平时注意预防，定期体检"
+                ]
+            },
+            {
+                text: "在团队里，你通常是什么角色？",
+                options: [
+                    "带头的人，负责安排任务",
+                    "踏实做事的人，认真完成工作",
+                    "调节气氛的人，化解矛盾",
+                    "出主意的人，提出新想法"
+                ]
+            },
+            {
+                text: "面对生活中的起起落落，你的心态是？",
+                options: [
+                    "顺其自然，不强求",
+                    "积极面对，想办法改变",
+                    "坚持自己的信念不动摇",
+                    "灵活应对，随机应变"
+                ]
+            },
+            {
+                text: "你认为人生最宝贵的财富是什么？",
+                options: [
+                    "知识和智慧，不断学习成长",
+                    "真挚的感情和友谊",
+                    "健康的身体和活力",
+                    "内心的平静和满足"
+                ]
+            },
+            {
+                text: "过传统节日时，你通常会？",
+                options: [
+                    "认真准备，按传统方式过节",
+                    "了解节日的来历和意义",
+                    "用新潮的方式庆祝",
+                    "感恩祈福，反思自己"
+                ]
+            },
+            {
+                text: "规划未来时，你更倾向于？",
+                options: [
+                    "设定长远目标，一步步实现",
+                    "脚踏实地，先做好眼前的事",
+                    "根据情况灵活调整计划",
+                    "跟着感觉走，开心最重要"
+                ]
+            },
+            {
+                text: "朋友遇到困难向你求助，你会？",
+                options: [
+                    "尽全力帮忙，能帮多少帮多少",
+                    "理性分析，给出建议",
+                    "安慰鼓励，给予情感支持",
+                    "量力而行，能帮的一定帮"
+                ]
+            },
+            {
+                text: "你希望将来能留给后代最珍贵的东西是？",
+                options: [
+                    "丰厚的物质财富",
+                    "良好的家风和品德",
+                    "宝贵的人生经验和智慧",
+                    "美好的精神品质和价值观"
+                ]
+            }
+        ];
+
+        // 答案对应的宫位加分（内部使用，用户不可见）
+        const answerScores = [
+            // 题目1
+            ['命宫', '福德宫', '兄弟宫', '官禄宫'],
+            // 题目2
+            ['财帛宫', '官禄宫', '田宅宫', '福德宫'],
+            // 题目3
+            ['兄弟宫', '妻妾宫', '男女宫', '田宅宫'],
+            // 题目4
+            ['奴仆宫', '迁移宫', '福德宫', '命宫'],
+            // 题目5
+            ['官禄宫', '田宅宫', '福德宫', '疾厄宫'],
+            // 题目6
+            ['命宫', '财帛宫', '迁移宫', '福德宫'],
+            // 题目7
+            ['田宅宫', '疾厄宫', '迁移宫', '官禄宫'],
+            // 题目8
+            ['疾厄宫', '福德宫', '田宅宫', '疾厄宫'],
+            // 题目9
+            ['官禄宫', '财帛宫', '妻妾宫', '迁移宫'],
+            // 题目10
+            ['福德宫', '迁移宫', '命宫', '奴仆宫'],
+            // 题目11
+            ['官禄宫', '兄弟宫', '疾厄宫', '福德宫'],
+            // 题目12
+            ['田宅宫', '疾厄宫', '迁移宫', '福德宫'],
+            // 题目13
+            ['官禄宫', '财帛宫', '迁移宫', '福德宫'],
+            // 题目14
+            ['奴仆宫', '官禄宫', '妻妾宫', '财帛宫'],
+            // 题目15
+            ['财帛宫', '田宅宫', '官禄宫', '福德宫']
+        ];
+
+        // 宫位权重系数
+        const palaceWeights = {
+            '命宫': 1.2,
+            '财帛宫': 1.0,
+            '兄弟宫': 0.8,
+            '田宅宫': 1.0,
+            '男女宫': 0.8,
+            '奴仆宫': 0.9,
+            '妻妾宫': 1.1,
+            '疾厄宫': 1.1,
+            '迁移宫': 0.9,
+            '官禄宫': 1.2,
+            '福德宫': 1.3,
+            '相貌宫': 1.0
+        };
+
+        // 宫位详细解读
+        const palaceInterpretations = {
+            '命宫': {
+                levels: {
+                    'weak': '根基不稳，运势起伏，需培养定力和判断力',
+                    'normal': '根基平稳，按部就班，稳步发展',
+                    'strong': '根基稳固，运势顺畅，多有贵人相助',
+                    'very-strong': '根基深厚，运势强劲，事业有成',
+                    'super-strong': '根基极深，运势极佳，一生顺遂'
+                },
+                advice: {
+                    'weak': '建议多培养独立思考能力，增强自信心，遇事多思考再行动。',
+                    'normal': '保持现有的稳健作风，适当挑战自己，会有更好的发展。',
+                    'strong': '充分发挥你的判断力优势，勇于承担责任，前程似锦。',
+                    'very-strong': '你具有极强的领导潜质，适合担任重要职位，成就非凡事业。',
+                    'super-strong': '天赋异禀，运势极佳，只要保持谦逊，必能成就一番伟业。'
+                }
+            },
+            '财帛宫': {
+                levels: {
+                    'weak': '财运不佳，需节俭度日，培养理财能力',
+                    'normal': '财运普通，收支平衡，稳健理财',
+                    'strong': '财运旺盛，财源广进，善于积累',
+                    'very-strong': '财运极佳，富甲一方，投资有道',
+                    'super-strong': '财运超群，世代富贵，财富传承'
+                },
+                advice: {
+                    'weak': '建议学习理财知识，培养储蓄习惯，从小额投资开始积累经验。',
+                    'normal': '保持理性消费，适当进行稳健投资，财富会稳步增长。',
+                    'strong': '你有很好的理财天赋，可以大胆尝试多元化投资，财富会快速增长。',
+                    'very-strong': '投资眼光独到，适合从事金融、投资等行业，财富积累速度惊人。',
+                    'super-strong': '天生的财富管理者，建议建立家族财富传承体系，福泽后代。'
+                }
+            },
+            '兄弟宫': {
+                levels: {
+                    'weak': '人际关系紧张，需改善沟通，培养同理心',
+                    'normal': '人际关系一般，平淡无奇，需主动维护',
+                    'strong': '人际关系和谐，朋友众多，善于协作',
+                    'very-strong': '人际关系极佳，贵人相助，人脉广泛',
+                    'super-strong': '人际关系超群，影响力大，众望所归'
+                },
+                advice: {
+                    'weak': '多参加社交活动，学习沟通技巧，主动关心他人，改善人际关系。',
+                    'normal': '保持真诚待人，主动维护友谊，人际关系会更加和谐。',
+                    'strong': '你的人际关系处理能力很强，适合团队合作，会有很好的发展。',
+                    'very-strong': '人脉资源丰富，善于借助他人力量，事业发展会一帆风顺。',
+                    'super-strong': '具有极强的影响力和号召力，适合担任领导或公众人物。'
+                }
+            },
+            '田宅宫': {
+                levels: {
+                    'weak': '家庭关系紧张，需多沟通，改善家庭氛围',
+                    'normal': '家庭关系一般，平淡和谐，需用心经营',
+                    'strong': '家庭关系和睦，家业兴旺，家庭幸福',
+                    'very-strong': '家庭关系极佳，家业传承，家族昌盛',
+                    'super-strong': '家庭关系超群，世代昌盛，家风传承'
+                },
+                advice: {
+                    'weak': '多花时间陪伴家人，主动沟通，营造温馨和谐的家庭氛围。',
+                    'normal': '珍惜家庭时光，用心经营家庭关系，家庭会更加幸福美满。',
+                    'strong': '家庭是你最坚实的后盾，好好珍惜，家庭幸福会带来事业成功。',
+                    'very-strong': '家庭和睦，家业兴旺，是人生最大的财富，继续保持。',
+                    'super-strong': '家风优良，家族昌盛，是难得的福气，建议传承家风家训。'
+                }
+            },
+            '男女宫': {
+                levels: {
+                    'weak': '子女缘分较浅，需多关爱，改善亲子关系',
+                    'normal': '子女缘分一般，平淡相处，需用心培养',
+                    'strong': '子女缘分深厚，子女有成，亲子和谐',
+                    'very-strong': '子女缘分极佳，子女显贵，家族传承',
+                    'super-strong': '子女缘分超群，世代英才，光宗耀祖'
+                },
+                advice: {
+                    'weak': '多陪伴子女，关注他们的成长，建立良好的亲子关系。',
+                    'normal': '用心教育子女，给予关爱和支持，子女会有很好的发展。',
+                    'strong': '与子女关系融洽，教育有方，子女会成为你的骄傲。',
+                    'very-strong': '子女优秀，家庭幸福，是人生最大的成就之一。',
+                    'super-strong': '子女成才，光宗耀祖，家族传承有序，福泽绵长。'
+                }
+            },
+            '奴仆宫': {
+                levels: {
+                    'weak': '贵人运较弱，需自立自强，培养合作意识',
+                    'normal': '贵人运一般，偶有相助，需主动寻求帮助',
+                    'strong': '贵人运旺盛，常有贵人，善于借力',
+                    'very-strong': '贵人运极佳，贵人云集，事业顺利',
+                    'super-strong': '贵人运超群，得道多助，成就非凡'
+                },
+                advice: {
+                    'weak': '培养独立能力，同时学会寻求帮助，建立良好的合作关系。',
+                    'normal': '主动结交朋友，乐于助人，贵人运会逐渐增强。',
+                    'strong': '善于借助他人力量，人际关系处理得当，事业发展顺利。',
+                    'very-strong': '贵人运旺盛，抓住机遇，事业会有突破性发展。',
+                    'super-strong': '得道多助，贵人相助，成就非凡事业，名利双收。'
+                }
+            },
+            '妻妾宫': {
+                levels: {
+                    'weak': '婚姻关系紧张，需多包容，改善沟通',
+                    'normal': '婚姻关系一般，平淡相守，需用心经营',
+                    'strong': '婚姻关系和谐，夫妻恩爱，家庭幸福',
+                    'very-strong': '婚姻关系极佳，白头偕老，琴瑟和鸣',
+                    'super-strong': '婚姻关系超群，相濡以沫，恩爱一生'
+                },
+                advice: {
+                    'weak': '多沟通，多理解，学会包容，改善婚姻关系。',
+                    'normal': '珍惜婚姻，用心经营，婚姻关系会更加和谐。',
+                    'strong': '婚姻幸福，夫妻恩爱，是人生最大的福气之一。',
+                    'very-strong': '夫妻情深，白头偕老，是难得的美满姻缘。',
+                    'super-strong': '相濡以沫，恩爱一生，是世间最美好的爱情典范。'
+                }
+            },
+            '疾厄宫': {
+                levels: {
+                    'weak': '健康状况不佳，需注意养生，定期体检',
+                    'normal': '健康状况一般，注意保健，保持锻炼',
+                    'strong': '健康状况良好，少有疾病，注重养生',
+                    'very-strong': '健康状况极佳，身体强健，长寿之相',
+                    'super-strong': '健康状况超群，体质极佳，福寿绵长'
+                },
+                advice: {
+                    'weak': '重视健康，定期体检，养成良好生活习惯，注意饮食和锻炼。',
+                    'normal': '保持健康生活方式，适当锻炼，注意饮食平衡，健康会更好。',
+                    'strong': '身体素质良好，继续保持健康习惯，会有更长的寿命。',
+                    'very-strong': '体质强健，少有疾病，是难得的健康之相，继续保持。',
+                    'super-strong': '天生健康体质，长寿之相，建议传授健康经验给他人。'
+                }
+            },
+            '迁移宫': {
+                levels: {
+                    'weak': '外出运势不佳，需谨慎出行，做好准备',
+                    'normal': '外出运势一般，平淡无奇，按部就班',
+                    'strong': '外出运势旺盛，常有机遇，事业有成',
+                    'very-strong': '外出运势极佳，名扬四海，成就非凡',
+                    'super-strong': '外出运势超群，四海为家，功成名就'
+                },
+                advice: {
+                    'weak': '外出时做好充分准备，注意安全，选择合适的时机和地点。',
+                    'normal': '外出机会一般，但只要努力，也会有不错的发展。',
+                    'strong': '外出运势好，适合出差、旅游或到外地发展，会有意外收获。',
+                    'very-strong': '外出运极佳，适合到外地发展或出国深造，会有重大成就。',
+                    'super-strong': '四海为家，游历四方，会有非凡的人生经历和成就。'
+                }
+            },
+            '官禄宫': {
+                levels: {
+                    'weak': '事业运势不佳，需努力拼搏，提升能力',
+                    'normal': '事业运势一般，平淡发展，稳步前进',
+                    'strong': '事业运势旺盛，职位晋升，事业有成',
+                    'very-strong': '事业运势极佳，功成名就，位高权重',
+                    'super-strong': '事业运势超群，位极人臣，名垂青史'
+                },
+                advice: {
+                    'weak': '努力学习，提升能力，寻找适合自己的发展方向，事业会有起色。',
+                    'normal': '保持努力，积累经验，事业会稳步发展，逐步提升。',
+                    'strong': '事业运势旺盛，抓住机遇，勇于挑战，会有更大的成就。',
+                    'very-strong': '事业成就显著，适合担任领导职位，会有更大的发展空间。',
+                    'super-strong': '事业成就非凡，名垂青史，是难得的人才，继续努力。'
+                }
+            },
+            '福德宫': {
+                levels: {
+                    'weak': '福气运势不佳，需积德行善，修身养性',
+                    'normal': '福气运势一般，平淡度日，保持善心',
+                    'strong': '福气运势旺盛，福寿双全，智慧超群',
+                    'very-strong': '福气运势极佳，福泽深厚，德高望重',
+                    'super-strong': '福气运势超群，福寿绵长，功德圆满'
+                },
+                advice: {
+                    'weak': '多行善事，修身养性，培养良好品德，福气会逐渐增加。',
+                    'normal': '保持善良本性，多做善事，福气会慢慢积累。',
+                    'strong': '福气旺盛，智慧超群，继续行善积德，会有更好的发展。',
+                    'very-strong': '福泽深厚，德高望重，是难得的福气，继续积德行善。',
+                    'super-strong': '功德圆满，福寿绵长，是世间难得的福报，继续行善。'
+                }
+            },
+            '相貌宫': {
+                levels: {
+                    'weak': '整体运势不佳，需全面改善，谨慎行事',
+                    'normal': '整体运势一般，平淡发展，稳步前进',
+                    'strong': '整体运势旺盛，顺风顺水，事业有成',
+                    'very-strong': '整体运势极佳，一生顺遂，福寿双全',
+                    'super-strong': '整体运势超群，天时地利人和，成就非凡'
+                },
+                advice: {}
+            }
+        };
+
+        // 总结性描述模板
+        const summaryTemplates = {
+            'super-strong': [
+                '您的整体运势极佳，十二宫位均衡发展，根基深厚，福泽绵长。您天生具有领导才能和智慧，无论在事业、财富还是人际关系方面都表现出色。建议继续保持谦逊和善良，发挥您的优势，未来必定成就非凡。',
+                '您的命格非常优秀，各宫位发展均衡，运势强劲。您具有极强的判断力和执行力，在人生各个阶段都能把握机遇，化险为夷。继续保持积极向上的心态，您的未来将更加辉煌。',
+                '您的运势格局非常完美，十二宫位相辅相成，形成良性循环。您不仅个人能力出众，还拥有良好的人际关系和家庭支持，是难得的福气之人。珍惜这份福缘，继续行善积德。'
+            ],
+            'very-strong': [
+                '您的整体运势非常好，十二宫位发展均衡，根基稳固。您在事业、财富和人际关系方面都有很好的表现，人生道路相对顺畅。建议继续发挥优势，同时关注薄弱环节，让运势更上一层楼。',
+                '您的命格优秀，各宫位协调配合，运势强劲。您具有敏锐的洞察力和良好的判断力，能够抓住机遇，化解危机。继续保持努力，您的成就将更加突出。',
+                '您的运势格局良好，十二宫位相互促进，形成良性发展。您不仅个人能力强，还拥有贵人相助，是福气之人。珍惜现有资源，继续努力，未来可期。'
+            ],
+            'strong': [
+                '您的整体运势良好，十二宫位发展较为均衡。您在某些方面表现突出，人生道路相对平稳。建议发挥优势，同时关注需要改进的地方，通过努力可以进一步提升运势。',
+                '您的命格不错，各宫位协调配合，运势顺畅。您具有一定的判断力和执行力，能够应对生活中的挑战。继续保持积极心态，努力提升自己，未来会有更好的发展。',
+                '您的运势格局较为理想，十二宫位相互支持，发展稳定。您拥有一定的能力和资源，只要努力奋斗，就能取得不错的成就。珍惜机遇，继续前行。'
+            ],
+            'normal': [
+                '您的整体运势一般，十二宫位发展较为平淡。人生道路可能会有一些起伏，但只要努力奋斗，依然能够取得不错的成就。建议多学习提升，培养优势，改善薄弱环节。',
+                '您的命格普通，各宫位发展均衡但不够突出。您需要通过后天的努力来改善运势，建议多学习新知识，提升能力，积累经验。只要坚持不懈，未来依然可期。',
+                '您的运势格局较为平稳，十二宫位没有明显的优劣势。您的人生需要靠自己的努力来创造，建议设定明确目标，脚踏实地，稳步前进。'
+            ],
+            'weak': [
+                '您的整体运势较弱，十二宫位发展不够均衡。人生道路可能会遇到较多挑战，需要更加努力和谨慎。建议多学习提升，培养耐心和毅力，通过积累逐步改善运势。',
+                '您的命格需要后天努力来改善，各宫位发展不够理想。您可能会遇到一些困难和挫折，但只要不放弃，通过学习和积累，依然能够改变命运。保持积极心态，继续努力。',
+                '您的运势格局需要全面改善，十二宫位都有提升空间。建议从基础做起，培养良好的习惯和品德，通过持续努力来改变现状。相信只要坚持不懈，终会有所收获。'
+            ]
+        };
+
+        // 传统文化智慧引用
+        const wisdomQuotes = [
+            "《麻衣神相》云：'印堂为命宫，主根基与决断，印堂开阔者，志向远大。'",
+            "《柳庄相法》曰：'鼻为财帛宫，主财富与积累，鼻梁高耸者，财运亨通。'",
+            "《神相全编》云：'眉为兄弟宫，主同辈关系，眉清目秀者，人缘极佳。'",
+            "《麻衣神相》云：'眼上为田宅宫，主家庭与根基，田宅丰隆者，家业兴旺。'",
+            "《柳庄相法》曰：'眼下为男女宫，主子女缘分，男女宫饱满者，子女有成。'",
+            "《神相全编》云：'颊为奴仆宫，主贵人与合作，奴仆宫丰润者，贵人相助。'",
+            "《麻衣神相》云：'鱼尾为妻妾宫，主婚姻感情，妻妾宫平满者，婚姻美满。'",
+            "《柳庄相法》曰：'山根为疾厄宫，主健康状况，山根高耸者，身体健康。'",
+            "《神相全编》云：'上额为迁移宫，主外出与机遇，迁移宫开阔者，机遇多多。'",
+            "《麻衣神相》云：'天中为官禄宫，主事业成就，官禄宫丰隆者，事业有成。'",
+            "《柳庄相法》曰：'眉上为福德宫，主福气与智慧，福德宫饱满者，福寿双全。'",
+            "《神相全编》云：'相貌为总宫，主整体格局，相貌端正者，一生顺遂。'"
+        ];
+
+        // 全局变量
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let palaceScores = {
+            '命宫': 0,
+            '财帛宫': 0,
+            '兄弟宫': 0,
+            '田宅宫': 0,
+            '男女宫': 0,
+            '奴仆宫': 0,
+            '妻妾宫': 0,
+            '疾厄宫': 0,
+            '迁移宫': 0,
+            '官禄宫': 0,
+            '福德宫': 0,
+            '相貌宫': 0
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            showQuestion(currentQuestion);
+            updateProgress();
+        });
+
+        // 显示题目
+        function showQuestion(index) {
+            const container = document.getElementById('questionContainer');
+            const question = questions[index];
+            
+            let html = `
+                <div class="question-number">第 ${index + 1} 题 / 共 ${questions.length} 题</div>
+                <div class="question-text">${question.text}</div>
+                <div class="options">
+            `;
+            
+            question.options.forEach((option, i) => {
+                const isSelected = userAnswers[index] === i;
+                html += `
+                    <div class="option ${isSelected ? 'selected' : ''}" 
+                         onclick="selectOption(${i})">
+                        ${option}
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            // 添加控制按钮（只保留上一题按钮）
+            html += `
+                <div class="controls">
+                    <button class="btn btn-prev" onclick="prevQuestion()" ${index === 0 ? 'disabled' : ''}>
+                        ❮ 重新选择
+                    </button>
+                    ${index === questions.length - 1 ? `
+                    <button class="btn btn-submit" onclick="calculateResults()">
+                        📊 查看结果
+                    </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // 选择选项
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            
+            // 短暂延迟，让用户看到选择效果
+            setTimeout(() => {
+                // 如果是最后一题，显示查看结果按钮
+                if (currentQuestion === questions.length - 1) {
+                    showQuestion(currentQuestion);
+                } else {
+                    // 自动跳转到下一题
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                    updateProgress();
+                }
+            }, 300);
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = ((currentQuestion) / questions.length) * 100;
+            progress.style.width = percentage + '%';
+        }
+
+        // 计算结果
+        function calculateResults() {
+            // 显示加载动画
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            // 计算原始分数
+            userAnswers.forEach((answer, questionIndex) => {
+                if (answer !== undefined) {
+                    const palace = answerScores[questionIndex][answer];
+                    palaceScores[palace] += 2;
+                }
+            });
+            
+            // 计算加权分数
+            const weightedScores = {};
+            Object.keys(palaceScores).forEach(palace => {
+                weightedScores[palace] = palaceScores[palace] * palaceWeights[palace];
+            });
+            
+            // 计算相貌宫（12个宫位加权平均）
+            let totalWeightedScore = 0;
+            Object.values(weightedScores).forEach(score => {
+                totalWeightedScore += score;
+            });
+            weightedScores['相貌宫'] = totalWeightedScore / 12;
+            
+            // 延迟显示结果，给用户一个加载的感觉
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+                
+                // 显示综合评分
+                const overallScore = weightedScores['相貌宫'].toFixed(1);
+                document.getElementById('overallScore').textContent = overallScore;
+                document.getElementById('overallText').textContent = getLevelText('相貌宫', overallScore);
+                
+                // 生成并显示总结
+                generateSummary(weightedScores);
+                
+                // 显示核心优势宫位（只显示1个）
+                showSingleStrengthSection(weightedScores);
+                
+                // 显示重点关注宫位（只显示1个）
+                showSingleFocusSection(weightedScores);
+                
+                // 显示详细分析
+                showDetailedAnalysis(weightedScores);
+                
+                // 显示传统文化智慧
+                showWisdom();
+                
+            }, 1500);
+        }
+
+        // 生成总结
+        function generateSummary(scores) {
+            const overallScore = scores['相貌宫'];
+            const level = getLevel(overallScore);
+            
+            // 随机选择一个总结模板
+            const templates = summaryTemplates[level];
+            const randomIndex = Math.floor(Math.random() * templates.length);
+            const summary = templates[randomIndex];
+            
+            document.getElementById('summaryContent').innerHTML = summary;
+        }
+
+        // 显示单个核心优势宫位
+        function showSingleStrengthSection(scores) {
+            const sortedPalaces = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // 只取第一个
+            const [palace, score] = sortedPalaces[0];
+            const level = getLevel(score);
+            const levelClass = getLevelClass(level);
+            const interpretation = palaceInterpretations[palace].levels[level];
+            const advice = palaceInterpretations[palace].advice[level] || '';
+            
+            let html = `
+                <div class="palace-item">
+                    <div class="palace-name">${palace}</div>
+                    <div class="palace-score">${score.toFixed(1)} 分</div>
+                    <div class="palace-level ${levelClass}">${getLevelText(palace, score)}</div>
+                    <div class="palace-interpretation">${interpretation}</div>
+                    ${advice ? `<div class="palace-advice">💡 建议：${advice}</div>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('strengthSection').innerHTML = html;
+        }
+
+        // 显示单个重点关注宫位
+        function showSingleFocusSection(scores) {
+            const sortedPalaces = Object.entries(scores)
+                .sort((a, b) => a[1] - b[1]);
+            
+            // 只取第一个
+            const [palace, score] = sortedPalaces[0];
+            const level = getLevel(score);
+            const levelClass = getLevelClass(level);
+            const interpretation = palaceInterpretations[palace].levels[level];
+            const advice = palaceInterpretations[palace].advice[level] || '';
+            
+            let html = `
+                <div class="palace-item">
+                    <div class="palace-name">${palace}</div>
+                    <div class="palace-score">${score.toFixed(1)} 分</div>
+                    <div class="palace-level ${levelClass}">${getLevelText(palace, score)}</div>
+                    <div class="palace-interpretation">${interpretation}</div>
+                    ${advice ? `<div class="palace-advice">💡 建议：${advice}</div>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('focusSection').innerHTML = html;
+        }
+
+        // 显示详细分析
+        function showDetailedAnalysis(scores) {
+            let html = '';
+            Object.entries(scores).forEach(([palace, score]) => {
+                const level = getLevel(score);
+                html += `
+                    <div class="palace-card">
+                        <div class="palace-card-name">${palace}</div>
+                        <div class="palace-card-score">${score.toFixed(1)}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('palaceGrid').innerHTML = html;
+        }
+
+        // 显示传统文化智慧
+        function showWisdom() {
+            // 随机选择3条引用
+            const selectedQuotes = [];
+            const shuffled = [...wisdomQuotes].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < 3 && i < shuffled.length; i++) {
+                selectedQuotes.push(shuffled[i]);
+            }
+            
+            document.getElementById('wisdomContent').innerHTML = selectedQuotes.join('<br><br>');
+        }
+
+        // 获取等级
+        function getLevel(score) {
+            if (score >= 25) return 'super-strong';
+            if (score >= 19) return 'very-strong';
+            if (score >= 13) return 'strong';
+            if (score >= 7) return 'normal';
+            return 'weak';
+        }
+
+        // 获取等级样式类
+        function getLevelClass(level) {
+            return level;
+        }
+
+        // 获取等级文本
+        function getLevelText(palace, score) {
+            const level = getLevel(score);
+            const levelNames = {
+                'weak': '弱势宫位',
+                'normal': '普通宫位',
+                'strong': '强势宫位',
+                'very-strong': '极强宫位',
+                'super-strong': '超强势宫位'
+            };
+            return levelNames[level];
+        }
+
+        // 分享结果
+        function shareResult() {
+            const title = '我的国学十二宫测试结果';
+            const text = '我刚刚完成了国学十二宫测试，快来测测你的运势格局吧！';
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: url
+                }).catch(console.error);
+            } else {
+                alert('请点击"保存图片"按钮，然后分享图片给朋友！');
+            }
+        }
+
+        // 下载图片
+        async function downloadImage() {
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 显示加载状态
+            const downloadBtn = document.querySelector('.btn-download');
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = '生成中...';
+            downloadBtn.disabled = true;
+            
+            try {
+                // 使用html2canvas生成图片
+                const canvas = await html2canvas(resultContainer, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    width: resultContainer.offsetWidth,
+                    height: resultContainer.offsetHeight
+                });
+                
+                // 转换为图片并下载
+                const link = document.createElement('a');
+                link.download = '国学十二宫测试结果_' + new Date().getTime() + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('图片已保存！您可以分享给朋友了。');
+                
+            } catch (error) {
+                console.error('生成图片失败:', error);
+                alert('生成图片失败，请重试。');
+            } finally {
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
